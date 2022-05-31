@@ -31,7 +31,7 @@
                 </ModelVisual3D>
                 <ModelVisual3D>
                     <ModelVisual3D.Content>
-                        <Model3DGroup x:Name="SystemView">
+                        <Model3DGroup x:Name="GridView">
                             <GeometryModel3D x:Name="Map">
                                 <GeometryModel3D.Material>
                                     <DiffuseMaterial>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Projekat.Model;
 
@@ -14,7 +15,7 @@ namespace Projekat2.Utils
         private readonly double _minLon = 19.793909;
 
         private double _noviX = 0, _noviY = 0;
-        private Dictionary<string, double> Coordinates { get; } = new Dictionary<string, double>(4)
+        public Dictionary<string, double> Coordinates { get; } = new Dictionary<string, double>(4)
         {
             {"maxLat", double.MinValue}, {"maxLon", double.MinValue},
             {"minLat", double.MaxValue}, {"minLon", double.MaxValue}
@@ -38,6 +39,8 @@ namespace Projekat2.Utils
             Nodes(xmlDoc);
             Switches(xmlDoc);
             Routes(xmlDoc);
+
+            CalculateRelativeCoordinates();
         }
 
         private void Substations(XmlDocument xmlDoc)
@@ -197,6 +200,36 @@ namespace Projekat2.Utils
 
             longitude = ((delt * (180.0 / Math.PI)) + s) + diflon;
             latitude = ((lat + (1 + e2cuadrada * Math.Pow(Math.Cos(lat), 2) - (3.0 / 2.0) * e2cuadrada * Math.Sin(lat) * Math.Cos(lat) * (tao - lat)) * (tao - lat)) * (180.0 / Math.PI)) + diflat;
+        }
+
+        private void CalculateRelativeCoordinates()
+        {
+            Coordinates["maxLat"] -= Coordinates["minLat"];
+            Coordinates["maxLon"] -= Coordinates["minLon"];
+
+            foreach (var substationEntity in SubstationEntities)
+            {
+                substationEntity.X -= Coordinates["minLat"];
+                substationEntity.Y -= Coordinates["minLon"];
+            }
+
+            foreach (var nodeEntity in NodeEntities)
+            {
+                nodeEntity.X -= Coordinates["minLat"];
+                nodeEntity.Y -= Coordinates["minLon"];
+            }
+
+            foreach (var switchEntity in SwitchEntities)
+            {
+                switchEntity.X -= Coordinates["minLat"];
+                switchEntity.Y -= Coordinates["minLon"];
+            }
+
+            foreach (var point in LineEntities.SelectMany(lineEntity => lineEntity.Vertices))
+            {
+                point.X -= Coordinates["minLat"];
+                point.Y -= Coordinates["minLon"];
+            }
         }
     }
 }

@@ -1,6 +1,12 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using Projekat.Model;
 using Projekat2.Utils;
+using Point = System.Windows.Point;
 
 namespace Projekat2
 {
@@ -88,9 +94,40 @@ namespace Projekat2
 
         private void LoadModel_Click(object sender, RoutedEventArgs e)
         {
-            if (!_isLoaded) _grid.LoadModel();
+            if (!_isLoaded)
+            {
+                _grid.LoadModel();
+                DrawEntities();
+                DrawConnections();
+            }
             _isLoaded = true;
-            int a = 5;
+        }
+
+        private void DrawEntities()
+        {
+            DrawSubstations();
+        }
+
+        private void DrawSubstations()
+        {
+            foreach (var substationEntity in _grid.SubstationEntities)
+            {
+                double xPos = substationEntity.X;
+                double yPos = substationEntity.Y;
+
+                SolidColorBrush brush = new SolidColorBrush(Colors.GreenYellow);
+
+                var material = new DiffuseMaterial(brush);
+                var mesh = new MeshGeometry3D();
+
+                GeometryModel3D gm = new GeometryModel3D(mesh, material); 
+                GridView.Children.Add(gm);
+            }
+        }
+
+        private void DrawConnections()
+        {
+           
         }
 
         #endregion
