@@ -23,16 +23,20 @@ namespace Projekat2
         private readonly int _zoomOutMax = 5;
         private int _zoomCurent = 1;
 
-        private Grid _grid;
+        private readonly Grid _grid;
         private bool _isLoaded = false;
 
         #endregion
+
+        #region Constructor
 
         public MainWindow()
         {
             InitializeComponent();
             _grid = new Grid();
         }
+
+        #endregion
 
         #region ZoomPan
 
@@ -106,21 +110,240 @@ namespace Projekat2
         private void DrawEntities()
         {
             DrawSubstations();
+            DrawNodes();
+            DrawSwitches();
         }
 
         private void DrawSubstations()
         {
-            foreach (var substationEntity in _grid.SubstationEntities)
+            foreach (var substationEntity in _grid.SubstationEntities.Values)
             {
-                double xPos = substationEntity.X;
-                double yPos = substationEntity.Y;
+                DiffuseMaterial material = new DiffuseMaterial(new SolidColorBrush(Colors.Green));
+                MeshGeometry3D mesh = new MeshGeometry3D();
 
-                SolidColorBrush brush = new SolidColorBrush(Colors.GreenYellow);
+                Point3D vertex1 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex2 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex3 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex4 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex5 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex6 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex7 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex8 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
 
-                var material = new DiffuseMaterial(brush);
-                var mesh = new MeshGeometry3D();
+                mesh.Positions.Add(vertex1);
+                mesh.Positions.Add(vertex2);
+                mesh.Positions.Add(vertex3);
+                mesh.Positions.Add(vertex4);
+                mesh.Positions.Add(vertex5);
+                mesh.Positions.Add(vertex6);
+                mesh.Positions.Add(vertex7);
+                mesh.Positions.Add(vertex8);
 
-                GeometryModel3D gm = new GeometryModel3D(mesh, material); 
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(4);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(4);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(4);
+
+                GeometryModel3D gm = new GeometryModel3D(mesh, material);
+                GridView.Children.Add(gm);
+            }
+        }
+
+        private void DrawNodes()
+        {
+            foreach (var substationEntity in _grid.NodeEntities.Values)
+            {
+                DiffuseMaterial material = new DiffuseMaterial(new SolidColorBrush(Colors.Blue));
+                MeshGeometry3D mesh = new MeshGeometry3D();
+
+                Point3D vertex1 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex2 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex3 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex4 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex5 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex6 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex7 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex8 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+
+                mesh.Positions.Add(vertex1);
+                mesh.Positions.Add(vertex2);
+                mesh.Positions.Add(vertex3);
+                mesh.Positions.Add(vertex4);
+                mesh.Positions.Add(vertex5);
+                mesh.Positions.Add(vertex6);
+                mesh.Positions.Add(vertex7);
+                mesh.Positions.Add(vertex8);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(4);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(4);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(4);
+
+                GeometryModel3D gm = new GeometryModel3D(mesh, material);
+                GridView.Children.Add(gm);
+            }
+        }
+
+        private void DrawSwitches()
+        {
+            foreach (var substationEntity in _grid.SwitchEntities.Values)
+            {
+                DiffuseMaterial material = new DiffuseMaterial(new SolidColorBrush(Colors.Coral));
+                MeshGeometry3D mesh = new MeshGeometry3D();
+
+                Point3D vertex1 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex2 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex3 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex4 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0);
+                Point3D vertex5 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex6 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -1 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex7 = new Point3D(-1 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+                Point3D vertex8 = new Point3D(-0.99 + 2 * substationEntity.Y / _grid.Coordinates["maxLon"], -0.99 + 2 * substationEntity.X / _grid.Coordinates["maxLat"], 0.01);
+
+                mesh.Positions.Add(vertex1);
+                mesh.Positions.Add(vertex2);
+                mesh.Positions.Add(vertex3);
+                mesh.Positions.Add(vertex4);
+                mesh.Positions.Add(vertex5);
+                mesh.Positions.Add(vertex6);
+                mesh.Positions.Add(vertex7);
+                mesh.Positions.Add(vertex8);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(3);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(1);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(4);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(4);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(7);
+                mesh.TriangleIndices.Add(3);
+
+                mesh.TriangleIndices.Add(2);
+                mesh.TriangleIndices.Add(6);
+                mesh.TriangleIndices.Add(7);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(1);
+                mesh.TriangleIndices.Add(5);
+
+                mesh.TriangleIndices.Add(0);
+                mesh.TriangleIndices.Add(5);
+                mesh.TriangleIndices.Add(4);
+
+                GeometryModel3D gm = new GeometryModel3D(mesh, material);
                 GridView.Children.Add(gm);
             }
         }
