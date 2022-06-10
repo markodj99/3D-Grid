@@ -104,7 +104,7 @@
   <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\Geographic.xml" />
-    <Resource Include="Resources\map.jpg" />
+    <Resource Include="Resources\Map.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

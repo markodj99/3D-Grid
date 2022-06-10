@@ -16,44 +16,75 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" x:Name="ButtonsStackPanel" Orientation="Horizontal">
             <Button x:Name="LoadModel" Content="Load Model" Width="100" Height="25" Margin="10 0 0 0" Click="LoadModel_Click"/>
+            <Button x:Name="HideShowInactiveGridBtn" Content="Hide Inactive Grid" Width="110" IsEnabled="False" Height="25" Margin="10 0 0 0" Click="HideShowInactiveGrid" />
+            <ComboBox x:Name="SwitchComboBox" HorizontalContentAlignment="Center" IsEnabled="False" Width="100" Height="25" Margin="10 0 0 0" DropDownClosed="SwitchComboBox_DropDownClosed">
+                <ComboBoxItem Content="All Switches" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Open Switches"></ComboBoxItem>
+                <ComboBoxItem Content="Closed Switches"></ComboBoxItem>
+            </ComboBox>
+            <ComboBox x:Name="LineComboBox" HorizontalContentAlignment="Center" IsEnabled="False" Width="100" Height="25" Margin="10 0 0 0" DropDownClosed="LinesComboBox_DropDownClosed">
+                <ComboBoxItem Content="All Lines" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Low Resistance" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Medium Resistance"></ComboBoxItem>
+                <ComboBoxItem Content="High Resistance"></ComboBoxItem>
+            </ComboBox>
+            <ComboBox x:Name="ConnectionComboBox" HorizontalContentAlignment="Center" IsEnabled="False" Width="150" Height="25" Margin="10 0 0 0" DropDownClosed="ConnectionComboBox_DropDownClosed">
+                <ComboBoxItem Content="Show All Entities" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Less Than 3"></ComboBoxItem>
+                <ComboBoxItem Content="From 3 To 5"></ComboBoxItem>
+                <ComboBoxItem Content="Greater Than 5"></ComboBoxItem>
+            </ComboBox>
         </StackPanel>
         <Viewport3D Grid.Row="1" Name="ViewPort" ClipToBounds="True" MouseLeftButtonDown="ViewPort_MouseLeftButtonDown"
                     MouseLeftButtonUp="ViewPort_MouseLeftButtonUp" MouseMove="ViewPort_MouseMove"
-                    MouseWheel="ViewPort_MouseWheel">
+                    MouseWheel="ViewPort_MouseWheel" MouseUp="ViewPort_MouseUp" MouseDown="ViewPort_MouseDown"
+                    PreviewMouseRightButtonDown="ViewPort_MouseRightButtonDown"
+                    >
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name="Camera" Position="0,-1,1" LookDirection="0,1,-1" FieldOfView="60"/>
             </Viewport3D.Camera>
             <Viewport3D.Children>
-                <ModelVisual3D>
-                    <ModelVisual3D.Content>
-                        <AmbientLight Color="AliceBlue"/>
-                    </ModelVisual3D.Content>
-                </ModelVisual3D>
-                <ModelVisual3D>
-                    <ModelVisual3D.Content>
-                        <Model3DGroup x:Name="GridView">
-                            <GeometryModel3D x:Name="Map">
-                                <GeometryModel3D.Material>
-                                    <DiffuseMaterial>
-                                        <DiffuseMaterial.Brush>
-                                            <ImageBrush x:Name="MapImage" ImageSource="Resources/map.jpg"/>
-                                        </DiffuseMaterial.Brush>
-                                    </DiffuseMaterial>
-                                </GeometryModel3D.Material>
-                                <GeometryModel3D.Geometry>
-                                    <MeshGeometry3D Positions="-1,1,0 -1,-1,0 1,-1,0 1,1,0" TextureCoordinates="0,0 0,1 1,1 1,0" TriangleIndices="0 1 2, 0 2 3" />
-                                </GeometryModel3D.Geometry>
-                            </GeometryModel3D>
-                            <Model3DGroup.Transform>
-                                <Transform3DGroup>
-                                    <TranslateTransform3D x:Name="Translate" OffsetX="0" OffsetY="0" OffsetZ="0"/>
-                                    <ScaleTransform3D x:Name="Scale" ScaleX="1" ScaleY="1" ScaleZ="1"/>
+                    <ModelVisual3D>
+                        <ModelVisual3D.Content>
+                            <AmbientLight Color="AliceBlue"/>
+                        </ModelVisual3D.Content>
+                    </ModelVisual3D>
+                    <ModelVisual3D>
+                        <ModelVisual3D.Content>
+                            <Model3DGroup x:Name="GridView">
+                                <GeometryModel3D x:Name="Map">
+                                    <GeometryModel3D.Material>
+                                        <DiffuseMaterial>
+                                            <DiffuseMaterial.Brush>
+                                                <ImageBrush x:Name="MapImage" ImageSource="Resources/Map.jpg"/>
+                                            </DiffuseMaterial.Brush>
+                                        </DiffuseMaterial>
+                                    </GeometryModel3D.Material>
+                                    <GeometryModel3D.Geometry>
+                                        <MeshGeometry3D Positions="-1,1,0 -1,-1,0 1,-1,0 1,1,0" TextureCoordinates="0,0 0,1 1,1 1,0" TriangleIndices="0 1 2, 0 2 3" />
+                                    </GeometryModel3D.Geometry>
+                                </GeometryModel3D>
+                                <Model3DGroup.Transform>
+                                    <Transform3DGroup>
+                                        <TranslateTransform3D x:Name="Translate" OffsetX="0" OffsetY="0" OffsetZ="0"/>
+                                        <ScaleTransform3D x:Name="Scale" ScaleX="1" ScaleY="1" ScaleZ="1"/>
+
+                                        <RotateTransform3D>
+                                            <RotateTransform3D.Rotation>
+                                                <AxisAngleRotation3D x:Name="RotationY" Axis="0,0,1" Angle="0" />
+                                            </RotateTransform3D.Rotation>
+                                        </RotateTransform3D>
+                                        <RotateTransform3D>
+                                            <RotateTransform3D.Rotation>
+                                                <AxisAngleRotation3D x:Name="RotationX" Axis="1,0,0" Angle="0" />
+                                            </RotateTransform3D.Rotation>
+                                        </RotateTransform3D>
                                 </Transform3DGroup>
-                            </Model3DGroup.Transform>
-                        </Model3DGroup>
-                    </ModelVisual3D.Content>
-                </ModelVisual3D>
-            </Viewport3D.Children>
+                                </Model3DGroup.Transform>
+                            </Model3DGroup>
+                        </ModelVisual3D.Content>
+                    </ModelVisual3D>
+                </Viewport3D.Children>
         </Viewport3D>
     </Grid>
 </Window>

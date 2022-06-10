@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Xml;
 using Projekat.Model;
 
@@ -9,18 +11,16 @@ namespace Projekat2.Utils
 {
     public class Grid
     {
+        #region Fields
+
         private readonly double _maxLat = 45.277031;
         private readonly double _minLat = 45.2325;
         private readonly double _maxLon = 19.894459;
         private readonly double _minLon = 19.793909;
 
+        public double RelativeMaxLat { get; }
+        public double RelativeMaxLon { get; }
         private double _noviX = 0, _noviY = 0;
-        public Dictionary<string, double> Coordinates { get; } = new Dictionary<string, double>(4)
-        {
-            {"maxLat", double.MinValue}, {"maxLon", double.MinValue},
-            {"minLat", double.MaxValue}, {"minLon", double.MaxValue}
-        };
-
         private readonly string _path = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.FullName + "\\Resources", "Geographic.xml");
 
         public Dictionary<long, SubstationEntity> SubstationEntities { get; } = new Dictionary<long, SubstationEntity>(17);
@@ -28,7 +28,36 @@ namespace Projekat2.Utils
         public Dictionary<long, SwitchEntity> SwitchEntities { get; } = new Dictionary<long, SwitchEntity>(1233);
         public Dictionary<long, LineEntity> LineEntities { get; } = new Dictionary<long, LineEntity>(888);
 
-        public Grid() { }
+        public Dictionary<GeometryModel3D, SubstationEntity> SubstationModels { get; set; } = new Dictionary<GeometryModel3D, SubstationEntity>();
+        public Dictionary<GeometryModel3D, NodeEntity> NodeModels { get; set; } = new Dictionary<GeometryModel3D, NodeEntity>();
+        public Dictionary<GeometryModel3D, SwitchEntity> SwitchModels { get; set; } = new Dictionary<GeometryModel3D, SwitchEntity>();
+        public Dictionary<GeometryModel3D, LineEntity> LineModels { get; set; } = new Dictionary<GeometryModel3D, LineEntity>();
+        public List<GeometryModel3D> HiddenEntities { get; set; } = new List<GeometryModel3D>();
+        public List<GeometryModel3D> BrushedSwitches { get; set; } = new List<GeometryModel3D>();
+        public List<GeometryModel3D> BrushedLines { get; set; } = new List<GeometryModel3D>();
+        public List<GeometryModel3D> HiddenEntitiesConn { get; set; } = new List<GeometryModel3D>();
+        public Dictionary<long, int> NumberOfConnectionsByEntity { get; set; } = new Dictionary<long, int>();
+
+
+        public GeometryModel3D FirstEnd { get; set; }
+        public GeometryModel3D SecondEnd { get; set; }
+        public Color FirstColor { get; set; }
+        public Color SecondColor { get; set; }
+        public bool EntitiesChanged { get; set; } = false;
+
+        #endregion
+
+        #region Constructor
+
+        public Grid()
+        {
+            RelativeMaxLat = _maxLat - _minLat;
+            RelativeMaxLon = _maxLon - _minLon;
+        }
+
+        #endregion
+
+        #region Methods
 
         public void LoadModel()
         {
@@ -41,6 +70,7 @@ namespace Projekat2.Utils
             Routes(xmlDoc);
 
             CalculateRelativeCoordinates();
+            CalculateNumberOfConnectionsByEntity();
         }
 
         private void Substations(XmlDocument xmlDoc)
@@ -57,16 +87,10 @@ namespace Projekat2.Utils
                 };
 
                 ToLatLon(sub.X, sub.Y, 34, out _noviX, out _noviY);
-                if (CheckBounds())
-                {
-                    if (_noviX > Coordinates["maxLat"]) Coordinates["maxLat"] = _noviX;
-                    if (_noviX < Coordinates["minLat"]) Coordinates["minLat"] = _noviX;
-                    if (_noviY > Coordinates["maxLon"]) Coordinates["maxLon"] = _noviY;
-                    if (_noviY < Coordinates["minLon"]) Coordinates["minLon"] = _noviY;
-                    sub.X = _noviX;
-                    sub.Y = _noviY;
-                    SubstationEntities.Add(sub.Id, sub);
-                }
+                if (!CheckBounds()) continue;
+                sub.X = _noviX;
+                sub.Y = _noviY;
+                SubstationEntities.Add(sub.Id, sub);
             }
         }
 
@@ -84,16 +108,10 @@ namespace Projekat2.Utils
                 };
 
                 ToLatLon(nodeEntity.X, nodeEntity.Y, 34, out _noviX, out _noviY);
-                if (CheckBounds())
-                {
-                    if (_noviX > Coordinates["maxLat"]) Coordinates["maxLat"] = _noviX;
-                    if (_noviX < Coordinates["minLat"]) Coordinates["minLat"] = _noviX;
-                    if (_noviY > Coordinates["maxLon"]) Coordinates["maxLon"] = _noviY;
-                    if (_noviY < Coordinates["minLon"]) Coordinates["minLon"] = _noviY;
-                    nodeEntity.X = _noviX;
-                    nodeEntity.Y = _noviY;
-                    NodeEntities.Add(nodeEntity.Id, nodeEntity);
-                }
+                if (!CheckBounds()) continue;
+                nodeEntity.X = _noviX;
+                nodeEntity.Y = _noviY;
+                NodeEntities.Add(nodeEntity.Id, nodeEntity);
             }
         }
 
@@ -112,16 +130,10 @@ namespace Projekat2.Utils
                 };
 
                 ToLatLon(switchobj.X, switchobj.Y, 34, out _noviX, out _noviY);
-                if (CheckBounds())
-                {
-                    if (_noviX > Coordinates["maxLat"]) Coordinates["maxLat"] = _noviX;
-                    if (_noviX < Coordinates["minLat"]) Coordinates["minLat"] = _noviX;
-                    if (_noviY > Coordinates["maxLon"]) Coordinates["maxLon"] = _noviY;
-                    if (_noviY < Coordinates["minLon"]) Coordinates["minLon"] = _noviY;
-                    switchobj.X = _noviX;
-                    switchobj.Y = _noviY;
-                    SwitchEntities.Add(switchobj.Id, switchobj);
-                }
+                if (!CheckBounds()) continue;
+                switchobj.X = _noviX;
+                switchobj.Y = _noviY;
+                SwitchEntities.Add(switchobj.Id, switchobj);
             }
         }
 
@@ -162,10 +174,6 @@ namespace Projekat2.Utils
                     }
                     p.X = _noviX;
                     p.Y = _noviY;
-                    if (_noviX > Coordinates["maxLat"]) Coordinates["maxLat"] = _noviX;
-                    if (_noviX < Coordinates["minLat"]) Coordinates["minLat"] = _noviX;
-                    if (_noviY > Coordinates["maxLon"]) Coordinates["maxLon"] = _noviY;
-                    if (_noviY < Coordinates["minLon"]) Coordinates["minLon"] = _noviY;
                     l.Vertices.Add(p);
                 }
 
@@ -176,8 +184,8 @@ namespace Projekat2.Utils
 
         private bool CheckBounds()
         {
-            if (_noviX >= _minLat && _noviX <= _maxLat) if (_noviY >= _minLon && _noviY <= _maxLon) return true;
-            return false;
+            if (!(_noviX >= _minLat) || !(_noviX <= _maxLat)) return false;
+            return _noviY >= _minLon && _noviY <= _maxLon;
         }
 
         private bool CheckIfEntityExists(long firstEnd, long secondEnd)
@@ -233,32 +241,48 @@ namespace Projekat2.Utils
 
         private void CalculateRelativeCoordinates()
         {
-            Coordinates["maxLat"] -= Coordinates["minLat"];
-            Coordinates["maxLon"] -= Coordinates["minLon"];
 
             foreach (var substationEntity in SubstationEntities.Values)
             {
-                substationEntity.X -= Coordinates["minLat"];
-                substationEntity.Y -= Coordinates["minLon"];
+                substationEntity.X -= _minLat;
+                substationEntity.Y -= _minLon;
             }
 
             foreach (var nodeEntity in NodeEntities.Values)
             {
-                nodeEntity.X -= Coordinates["minLat"];
-                nodeEntity.Y -= Coordinates["minLon"];
+                nodeEntity.X -= _minLat;
+                nodeEntity.Y -= _minLon;
             }
 
             foreach (var switchEntity in SwitchEntities.Values)
             {
-                switchEntity.X -= Coordinates["minLat"];
-                switchEntity.Y -= Coordinates["minLon"];
+                switchEntity.X -= _minLat;
+                switchEntity.Y -= _minLon;
             }
 
             foreach (var point in LineEntities.SelectMany(lineEntity => lineEntity.Value.Vertices))
             {
-                point.X -= Coordinates["minLat"];
-                point.Y -= Coordinates["minLon"];
+                point.X -= _minLat;
+                point.Y -= _minLon;
             }
         }
+
+        private void CalculateNumberOfConnectionsByEntity()
+        {
+            foreach (var lineEntity in LineEntities.Values)
+            {
+                if (lineEntity.Vertices.Count > 1)
+                    if (Math.Abs(lineEntity.Vertices.First().X - lineEntity.Vertices.Last().X) < 0.00000001
+                        && Math.Abs(lineEntity.Vertices.First().Y - lineEntity.Vertices.Last().Y) < 0.00000001) continue;
+
+                if (!NumberOfConnectionsByEntity.ContainsKey(lineEntity.FirstEnd)) NumberOfConnectionsByEntity.Add(lineEntity.FirstEnd, 1);
+                else NumberOfConnectionsByEntity[lineEntity.FirstEnd]++;
+
+                if (!NumberOfConnectionsByEntity.ContainsKey(lineEntity.SecondEnd)) NumberOfConnectionsByEntity.Add(lineEntity.SecondEnd, 1);
+                else NumberOfConnectionsByEntity[lineEntity.SecondEnd]++;
+            }
+        }
+
+        #endregion
     }
 }
